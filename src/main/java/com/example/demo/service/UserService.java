@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dao.UserMapper;
 import com.example.demo.entity.User;
+import com.example.demo.util.CommunityConstant;
 import com.example.demo.util.DemoUtil;
 import com.example.demo.util.MailClient;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.Random;
 
 @Service
-public class UserService {
+public class UserService implements CommunityConstant {
 
     @Autowired
     private UserMapper usermapper;
@@ -83,7 +84,7 @@ public class UserService {
         user.setType(0);
         user.setStatus(0);
         user.setActivationCode(DemoUtil.generateUUID());
-        user.setHeaderUrl(String.format("http://images.newcoder.com/head/%dt.png", new Random().nextInt(1000)));
+        user.setHeaderUrl(String.format("http://images.nowcoder.com/head/%dt.png", new Random().nextInt(1000)));
         user.setCreateTime(new Date());
         usermapper.insertUser(user);
 
@@ -99,5 +100,16 @@ public class UserService {
         return map;
     }
 
+    public int activation(int userId, String code) {
+        User user = usermapper.selectById(userId);
+        if (user.getStatus() == 1) {
+            return ACTIVATION_REPEAT;
+        } else if (user.getActivationCode().equals(code)) {
+            usermapper.updateStatus(userId, 1);
+            return ACTIVATION_SUCCESS;
+        } else {
+            return ACTIVATION_FAILURE;
+        }
+    }
 
 }
